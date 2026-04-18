@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuse Wellness AI</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.header {
+    text-align: center;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.chat-box {
+    height: 350px;
+    overflow-y: auto;
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.message {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    max-width: 80%;
+}
+
+.user {
+    background: #667eea;
+    color: white;
+    margin-left: auto;
+}
+
+.ai {
+    background: #e8f4f8;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.loading {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #667eea;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+    margin-right: 3px;
+}
+
+@keyframes blink {
+    0%,100% {opacity:0.2;}
+    50% {opacity:1;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h1>🌿 Kuse Wellness AI</h1>
+</div>
+
+<div class="container">
+<div class="card">
+
+<div class="top-bar">
+<button onclick="toggleLanguage()">🌐 Language</button>
+</div>
+
+<div id="chat" class="chat-box">
+<div class="message ai" id="welcome">Hi 👋 I'm here for you. How are you feeling today?</div>
+</div>
+
+<div class="input-group">
+<input id="input" placeholder="Type your message..." onkeypress="if(event.key==='Enter') send()">
+<button onclick="send()">Send</button>
+</div>
+
+</div>
+</div>
+
+<script>
+
+const OPENAI_API_KEY = "YOUR_OPENAI_API_KEY";
+
+let lang = "en";
+
+const texts = {
+    en: {
+        welcome: "Hi 👋 I'm here for you. How are you feeling today?",
+        placeholder: "Type your message...",
+        error: "Sorry, something went wrong."
+    },
+    ar: {
+        welcome: "مرحباً 👋 أنا هنا من أجلك. كيف تشعر اليوم؟",
+        placeholder: "اكتب رسالتك...",
+        error: "حدث خطأ، حاول مرة أخرى."
+    }
+};
+
+function add(text, user=false){
+    const chat = document.getElementById("chat");
+
+    const div = document.createElement("div");
+    div.className = "message " + (user ? "user" : "ai");
+    div.innerHTML = text;
+
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function toggleLanguage(){
+    lang = lang === "en" ? "ar" : "en";
+
+    document.getElementById("input").placeholder = texts[lang].placeholder;
+
+    document.getElementById("chat").innerHTML =
+        `<div class="message ai">${texts[lang].welcome}</div>`;
+}
+
+async function send(){
+
+    const input = document.getElementById("input");
+    const text = input
